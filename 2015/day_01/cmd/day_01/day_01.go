@@ -47,7 +47,7 @@ var directionMap = map[rune]int{
     ')': -1,
 }
 
-func getDirections(dirs string) int {
+func getFloor(dirs string) int {
     var floor int = 0
 
     for _, dir := range dirs {
@@ -70,5 +70,5 @@ func readDirections(dir_path string) string {
 
 func main() {
     directions := readDirections("data/santa_instructions.dat")
-    fmt.Println("Floor: ", getDirections(directions))
+    fmt.Println("Floor: ", getFloor(directions))
 }
