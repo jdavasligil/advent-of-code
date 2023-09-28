@@ -26,20 +26,49 @@ never find the top or bottom floors.
 
 For example:
 
-    (()) and ()() both result in floor 0.
-    ((( and (()(()( both result in floor 3.
-    ))((((( also results in floor 3.
-    ()) and ))( both result in floor -1 (the first basement level).
-    ))) and )())()) both result in floor -3.
+	(()) and ()() both result in floor 0.
+	((( and (()(()( both result in floor 3.
+	))((((( also results in floor 3.
+	()) and ))( both result in floor -1 (the first basement level).
+	))) and )())()) both result in floor -3.
 
 To what floor do the instructions take Santa?
 */
 package main
 
+import (
+	"fmt"
+	"log"
+	"os"
+)
 
-import "fmt"
+func decode_direction(dir rune) int {
+    if dir == '(' {
+        return 1
+    }
+    return -1
+}
+
+func get_directions(dirs string) int {
+    var floor int = 0
+
+    for _, dir := range dirs {
+        floor += decode_direction(dir)
+    }
+
+    return floor
+}
+
+func read_directions(dir_path string) string {
+    directions, err := os.ReadFile(dir_path)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    return string(directions)
+}
 
 func main() {
-
-    fmt.Println("Hello, world!")
+    directions := read_directions("data/santa_instructions.dat")
+    fmt.Println("Floor: ", get_directions(directions))
 }
