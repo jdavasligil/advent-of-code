@@ -42,24 +42,24 @@ import (
 	"os"
 )
 
-func decode_direction(dir rune) int {
-    if dir == '(' {
-        return 1
-    }
-    return -1
+var directionMap = map[rune]int{
+    '(': 1,
+    ')': -1,
 }
 
-func get_directions(dirs string) int {
+func getDirections(dirs string) int {
     var floor int = 0
 
     for _, dir := range dirs {
-        floor += decode_direction(dir)
+        floor += directionMap[dir]
     }
 
     return floor
 }
 
-func read_directions(dir_path string) string {
+// Reads entire file into a single string.
+// Extremely large files could be a problem.
+func readDirections(dir_path string) string {
     directions, err := os.ReadFile(dir_path)
     if err != nil {
         log.Fatal(err)
@@ -69,6 +69,6 @@ func read_directions(dir_path string) string {
 }
 
 func main() {
-    directions := read_directions("data/santa_instructions.dat")
-    fmt.Println("Floor: ", get_directions(directions))
+    directions := readDirections("data/santa_instructions.dat")
+    fmt.Println("Floor: ", getDirections(directions))
 }
