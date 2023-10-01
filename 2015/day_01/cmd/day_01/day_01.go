@@ -68,6 +68,34 @@ func readDirections(dir_path string) string {
     return string(directions)
 }
 
+// --- Part Two ---
+// 
+// Now, given the same instructions, find the position of the first character
+// that causes him to enter the basement (floor -1). The first character in the
+// instructions has position 1, the second character has position 2, and so on.
+// 
+// For example:
+// 
+//     ) causes him to enter the basement at character position 1.
+//     ()()) causes him to enter the basement at character position 5.
+// 
+// What is the position of the character that causes Santa to first enter the basement?
+
+// Finds the position (1-indexed) of the first character that causes santa
+// to enter the given floor.
+func getFirstFloorPosition(dirs string, floor_wanted int) int {
+    var floor int = 0
+
+    for idx, dir := range dirs {
+        floor += directionMap[dir]
+        if floor == floor_wanted {
+            return idx + 1
+        }
+    }
+
+    return -1
+}
+
 func main() {
     directions := readDirections("data/santa_instructions.dat")
     fmt.Println("Floor: ", getFloor(directions))
