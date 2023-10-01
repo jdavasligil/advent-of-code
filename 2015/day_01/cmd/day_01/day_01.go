@@ -99,4 +99,5 @@ func getFirstFloorPosition(dirs string, floor_wanted int) int {
 func main() {
     directions := readDirections("data/santa_instructions.dat")
     fmt.Println("Floor: ", getFloor(directions))
+    fmt.Println("First Position Entered Basement: ", getFirstFloorPosition(directions, -1))
 }
