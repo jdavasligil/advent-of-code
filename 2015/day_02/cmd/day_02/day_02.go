@@ -70,9 +70,33 @@ func calculateWrappingPaper(l float32, w float32, h float32) float32 {
     return 2*side1 + 2*side2 + 2*side3 + smallestSide
 }
 
+func calculateRibbonLength(l float32, w float32, h float32) float32 {
+    dimArray := [3]float32 {l, w, h}
+    var tmp float32 = 0.0
+
+    if dimArray[0] > dimArray[1] {
+        tmp = dimArray[0]
+        dimArray[0] = dimArray[1]
+        dimArray[1] = tmp
+    }
+    if dimArray[1] > dimArray[2] {
+        tmp = dimArray[1]
+        dimArray[1] = dimArray[2]
+        dimArray[2] = tmp
+    }
+    if dimArray[0] > dimArray[1] {
+        tmp = dimArray[0]
+        dimArray[0] = dimArray[1]
+        dimArray[1] = tmp
+    }
+
+    return 2*dimArray[0] + 2*dimArray[1] + l*w*h
+}
+
 func main() {
 
-// PART 1
+    // PART 1
+
     boxSizeFile, err := os.Open("data/box_sizes.dat")
     if err != nil {
         log.Fatal(err)

@@ -39,3 +39,23 @@ func TestParseBoxSize(t *testing.T) {
         }
     }
 }
+
+type ribbonTest struct {
+    arg1     float32
+    arg2     float32
+    arg3     float32
+    expected float32
+}
+
+var ribbonTests = []ribbonTest {
+    {2.0, 3.0, 4.0, 34.0},
+    {1.0, 1.0, 10.0, 14.0},
+}
+
+func TestCalculateRibbonLength(t *testing.T) {
+    for _, test := range ribbonTests {
+        if output := calculateRibbonLength(test.arg1, test.arg2, test.arg3); output != test.expected {
+            t.Errorf("Ribbon length %f is not equal to expected %f", output, test.expected)
+        }
+    }
+}
