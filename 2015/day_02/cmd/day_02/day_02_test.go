@@ -21,3 +21,21 @@ func TestCalculateWrappingPaper(t *testing.T) {
         }
     }
 }
+
+type parseBoxTest struct {
+    arg1     string
+    expected BoxSize
+}
+
+var parseBoxTests = []parseBoxTest {
+    {"11x12x2", BoxSize{11.0, 12.0, 2.0}},
+    {"1x1x1", BoxSize{1.0, 1.0, 1.0}},
+}
+
+func TestParseBoxSize(t *testing.T) {
+    for _, test := range parseBoxTests {
+        if output := parseBoxSize(test.arg1); output != test.expected {
+            t.Errorf("Dimensions %q are not equal to expected %f, %f, %f", test.arg1, output.l, output.w, output.h)
+        }
+    }
+}
