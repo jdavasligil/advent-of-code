@@ -26,5 +26,15 @@ wrapping paper should they order?
 */
 package main
 
+func calculateWrappingPaper(l float32, w float32, h float32) float32 {
+    side1 := l * w
+    side2 := w * h
+    side3 := l * h
+    smallestSide := min(side1, side2, side3)
+
+    return 2*side1 + 2*side2 + 2*side3 + smallestSide
+}
+
 func main() {
+    println("Hello, world!")
 }
