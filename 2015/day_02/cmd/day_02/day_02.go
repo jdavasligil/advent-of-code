@@ -107,11 +107,14 @@ func main() {
     fileScanner.Split(bufio.ScanLines)
 
     var totalWrappingPaper float32 = 0.0
+    var totalRibbon float32 = 0.0
 
     for fileScanner.Scan() {
         box := parseBoxSize(fileScanner.Text())
         totalWrappingPaper += calculateWrappingPaper(box.l, box.w, box.h)
+        totalRibbon += calculateRibbonLength(box.l, box.w, box.h)
     }
 
     println("Total Paper = ", int32(totalWrappingPaper))
+    println("Total Ribbon = ", int32(totalRibbon))
 }
