@@ -27,7 +27,9 @@ wrapping paper should they order?
 package main
 
 import (
+	"bufio"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -69,5 +71,23 @@ func calculateWrappingPaper(l float32, w float32, h float32) float32 {
 }
 
 func main() {
-    println("Hello, world!")
+
+// PART 1
+    boxSizeFile, err := os.Open("data/box_sizes.dat")
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fileScanner := bufio.NewScanner(boxSizeFile)
+
+    fileScanner.Split(bufio.ScanLines)
+
+    var totalWrappingPaper float32 = 0.0
+
+    for fileScanner.Scan() {
+        box := parseBoxSize(fileScanner.Text())
+        totalWrappingPaper += calculateWrappingPaper(box.l, box.w, box.h)
+    }
+
+    println("Total Paper = ", int32(totalWrappingPaper))
 }
