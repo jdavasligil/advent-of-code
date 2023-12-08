@@ -1,7 +1,7 @@
 const std = @import("std");
 
-pub fn main() !void {
-    std.debug.print("Part Number Sum: {d}", .{partNumberSum("data/input.dat")});
+pub fn main() anyerror!void {
+    std.debug.print("Part Number Sum: {d}\n", .{try partNumberSum("data/input.dat")});
 }
 
 fn isSymbol(c: u8) bool {
@@ -55,8 +55,7 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
     var j: usize = 0;
     var d: u8 = 0;
 
-    //var prev: [1024]u8 = undefined;
-    //_ = prev;
+    var prev: [1024]u8 = undefined;
     var curr: [1024]u8 = undefined;
     var next: [1024]u8 = undefined;
 
@@ -66,14 +65,8 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
 
     const width: usize = std.mem.sliceTo(&curr, '\n').len;
 
-    std.debug.print(" \n", .{});
-    std.debug.print("Curr: {s}\n", .{std.mem.sliceTo(&curr, '\n')});
-    std.debug.print("Next: {s}\n", .{std.mem.sliceTo(&next, '\n')});
-    std.debug.print("Width: {d}\n", .{width});
-
     i = width - 1;
 
-    // Handle all lines inbetween
     while (i > 0) {
         num = 0;
         num_len = 0;
@@ -100,31 +93,133 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
         if (num == 0 and i == 0) break;
 
         // Determine if number is adjacent to a symbol
-        dist = num_len + 2;
-        j = i;
-        while (dist > 0 and j < width) : ({
-            j += 1;
-            dist -= 1;
-        }) {
-            if (isSymbol(next[j])) {
-                std.debug.print("{c}\n", .{next[j]});
-                total += num;
-                break;
+        if (isSymbol(curr[i])) {
+            total += num;
+        } else if ((i + num_len) < width and isSymbol(curr[i + num_len])) {
+            total += num;
+        } else {
+            dist = num_len + 2;
+            j = i;
+            while (dist > 0 and j < width) : ({
+                j += 1;
+                dist -= 1;
+            }) {
+                if (isSymbol(next[j])) {
+                    total += num;
+                    break;
+                }
             }
         }
     }
-    std.debug.print("Total: {d}", .{total});
 
-    //while (try in_stream.readUntilDelimiterOrEof(&next, '\n')) |next_line| {
-    //    _ = next_line;
+    @memcpy(&prev, &curr);
+    @memcpy(&curr, &next);
 
-    //    // Copy curr to prev
-    //    // Copy next to curr
-    //}
+    // Handle all lines inbetween
+    while (try in_stream.readUntilDelimiterOrEof(&next, '\n')) |next_line| {
+        _ = next_line;
+        i = width - 1;
+
+        while (i > 0) {
+            num = 0;
+            num_len = 0;
+
+            // Find first digit from the right
+            while (i > 0 and charToDigit(curr[i]) == std.math.maxInt(u8)) {
+                i -= 1;
+            }
+
+            // Compute number and digit length
+            while (true) {
+                d = charToDigit(curr[i]);
+                if (d == std.math.maxInt(u8)) break;
+                num += d * powOfTen(num_len);
+                num_len += 1;
+
+                if (i > 0) {
+                    i -= 1;
+                } else {
+                    break;
+                }
+            }
+
+            if (num == 0 and i == 0) break;
+
+            // Determine if number is adjacent to a symbol
+            if (isSymbol(curr[i])) {
+                total += num;
+            } else if ((i + num_len) < width and isSymbol(curr[i + num_len])) {
+                total += num;
+            } else {
+                dist = num_len + 2;
+                j = i;
+                while (dist > 0 and j < width) : ({
+                    j += 1;
+                    dist -= 1;
+                }) {
+                    if (isSymbol(next[j]) or isSymbol(prev[j])) {
+                        total += num;
+                        break;
+                    }
+                }
+            }
+        }
+
+        @memcpy(&prev, &curr);
+        @memcpy(&curr, &next);
+    }
 
     // Handle the last line parse (no next line).
+    i = width - 1;
 
-    return 4361;
+    while (i > 0) {
+        num = 0;
+        num_len = 0;
+
+        // Find first digit from the right
+        while (i > 0 and charToDigit(curr[i]) == std.math.maxInt(u8)) {
+            i -= 1;
+        }
+
+        // Compute number and digit length
+        while (true) {
+            d = charToDigit(curr[i]);
+            if (d == std.math.maxInt(u8)) break;
+            num += d * powOfTen(num_len);
+            num_len += 1;
+
+            if (i > 0) {
+                i -= 1;
+            } else {
+                break;
+            }
+        }
+
+        if (num == 0 and i == 0) break;
+
+        // Determine if number is adjacent to a symbol
+        if (isSymbol(curr[i])) {
+            total += num;
+        } else if ((i + num_len) < width and isSymbol(curr[i + num_len])) {
+            total += num;
+        } else {
+            dist = num_len + 2;
+            j = i;
+            while (dist > 0 and j < width) : ({
+                j += 1;
+                dist -= 1;
+            }) {
+                if (isSymbol(prev[j])) {
+                    total += num;
+                    break;
+                }
+            }
+        }
+    }
+
+    std.debug.print("LAST LINE: {s}\n", .{curr});
+
+    return total;
 }
 
 test powOfTen {
