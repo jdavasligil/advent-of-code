@@ -217,7 +217,7 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
         }
     }
 
-    std.debug.print("LAST LINE: {s}\n", .{curr});
+    std.debug.print("LAST LINE: {s}\n", .{std.mem.sliceTo(&curr, '\n')});
 
     return total;
 }
