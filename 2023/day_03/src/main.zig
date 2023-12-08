@@ -1,5 +1,8 @@
 const std = @import("std");
 
+// ATTEMPTS:
+// 534871 LOW
+// 536298 HIGH
 pub fn main() anyerror!void {
     std.debug.print("Part Number Sum: {d}\n", .{try partNumberSum("data/input.dat")});
 }
@@ -95,10 +98,10 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
         // Determine if number is adjacent to a symbol
         if (isSymbol(curr[i])) {
             total += num;
-        } else if ((i + num_len) < width and isSymbol(curr[i + num_len])) {
+        } else if ((i + num_len + 1) < width and (isSymbol(curr[i + num_len]) or isSymbol(curr[i + num_len + 1]))) {
             total += num;
         } else {
-            dist = num_len + 2;
+            dist = if (i > 0) num_len + 2 else num_len + 1;
             j = i;
             while (dist > 0 and j < width) : ({
                 j += 1;
@@ -148,10 +151,10 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
             // Determine if number is adjacent to a symbol
             if (isSymbol(curr[i])) {
                 total += num;
-            } else if ((i + num_len) < width and isSymbol(curr[i + num_len])) {
+            } else if ((i + num_len + 1) < width and (isSymbol(curr[i + num_len]) or isSymbol(curr[i + num_len + 1]))) {
                 total += num;
             } else {
-                dist = num_len + 2;
+                dist = if (i > 0) num_len + 2 else num_len + 1;
                 j = i;
                 while (dist > 0 and j < width) : ({
                     j += 1;
@@ -200,10 +203,10 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
         // Determine if number is adjacent to a symbol
         if (isSymbol(curr[i])) {
             total += num;
-        } else if ((i + num_len) < width and isSymbol(curr[i + num_len])) {
+        } else if ((i + num_len + 1) < width and (isSymbol(curr[i + num_len]) or isSymbol(curr[i + num_len + 1]))) {
             total += num;
         } else {
-            dist = num_len + 2;
+            dist = if (i > 0) num_len + 2 else num_len + 1;
             j = i;
             while (dist > 0 and j < width) : ({
                 j += 1;
@@ -217,7 +220,7 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
         }
     }
 
-    std.debug.print("LAST LINE: {s}\n", .{std.mem.sliceTo(&curr, '\n')});
+    //std.debug.print("{s}\n", .{std.mem.sliceTo(&curr, '\n')});
 
     return total;
 }
@@ -230,5 +233,5 @@ test powOfTen {
 }
 
 test partNumberSum {
-    try std.testing.expectEqual(partNumberSum("data/calibration.dat"), 4361);
+    try std.testing.expectEqual(try partNumberSum("data/calibration.dat"), 4423); // 4361 + 58 + 5
 }
