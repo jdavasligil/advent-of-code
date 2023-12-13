@@ -5,7 +5,7 @@ const Point = struct {
     y: usize,
 };
 
-// ATTEMPTS:
+// P1 ATTEMPTS:
 // 536202 Final
 // 534871 LOW
 // 536298 HIGH
@@ -52,6 +52,8 @@ fn isSymbol(c: u8) bool {
         'A'...'Z' => false,
         'a'...'z' => false,
         '.' => false,
+        '\n' => false,
+        '\r' => false,
         else => true,
     };
 }
@@ -196,13 +198,81 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
     return total;
 }
 
-test powOfTen {
-    try std.testing.expectEqual(powOfTen(0), 1);
-    try std.testing.expectEqual(powOfTen(1), 10);
-    try std.testing.expectEqual(powOfTen(2), 100);
-    try std.testing.expectEqual(powOfTen(3), 1000);
+fn gearRatio(prev: []u8, curr: []u8, next: []u8, width: usize) u32 {
+    _ = next;
+    _ = prev;
+    //var num: u32 = 0;
+    //_ = num;
+    //var num_len: usize = 0;
+    //_ = num_len;
+    //var num_count: u8 = 0;
+    //_ = num_count;
+    var i: usize = 0;
+
+    while (i < width and curr[i] != '*') {
+        i += 1;
+    }
+
+    if (i == width) {
+        return 0;
+    }
+
+    return 0;
 }
 
-test partNumberSum {
-    try std.testing.expectEqual(try partNumberSum("data/calibration.dat"), 0); // 4361 + 58 + 5
+// Solve day 3 Part 2.
+fn gearRatioSum(path: []const u8) anyerror!u32 {
+    std.debug.print("DEBUG\n", .{});
+
+    const in_file = try std.fs.cwd().openFile(path, .{});
+    defer in_file.close();
+
+    var br = std.io.bufferedReader(in_file.reader());
+    const in_stream = br.reader();
+
+    var total: u32 = 0;
+
+    var prev: [1024]u8 = undefined;
+    var curr: [1024]u8 = undefined;
+    var next: [1024]u8 = undefined;
+
+    @memset(&prev, '.');
+    @memset(&curr, '.');
+    @memset(&next, '.');
+
+    _ = try in_stream.readUntilDelimiterOrEof(&curr, '\n');
+
+    const width: usize = std.mem.sliceTo(&curr, '\n').len;
+
+    while (try in_stream.readUntilDelimiterOrEof(&next, '\n')) |nline| {
+        _ = nline;
+
+        //std.debug.print("{s}\n", .{std.mem.sliceTo(&curr, '\n')});
+        total += gearRatio(&prev, &curr, &next, width);
+
+        @memcpy(&prev, &curr);
+        @memcpy(&curr, &next);
+    }
+
+    // -- LAST LINE --
+    @memset(&next, '.');
+    //std.debug.print("{s}\n", .{std.mem.sliceTo(&curr, '\n')});
+    total += gearRatio(&prev, &curr, &next, width);
+
+    return total;
+}
+
+//test powOfTen {
+//    try std.testing.expectEqual(powOfTen(0), 1);
+//    try std.testing.expectEqual(powOfTen(1), 10);
+//    try std.testing.expectEqual(powOfTen(2), 100);
+//    try std.testing.expectEqual(powOfTen(3), 1000);
+//}
+
+//test partNumberSum {
+//    try std.testing.expectEqual(try partNumberSum("data/calibration.dat"), 0);
+//}
+
+test gearRatioSum {
+    try std.testing.expectEqual(try gearRatioSum("data/calibration.dat"), 0);
 }
