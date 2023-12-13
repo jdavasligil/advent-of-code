@@ -6,6 +6,7 @@ const Point = struct {
 };
 
 // ATTEMPTS:
+// 536202 Final
 // 534871 LOW
 // 536298 HIGH
 // 556474 VHIGH
@@ -56,7 +57,7 @@ fn isSymbol(c: u8) bool {
 }
 
 fn hashPair(p: Point) usize {
-    return if (p.x >= p.y) p.x * p.x + p.y else p.x + p.y * p.y;
+    return if (p.x >= p.y) p.x * p.x + p.x + p.y else p.x + p.y * p.y;
 }
 
 fn fillSymMap(smap: []bool, path: []const u8) anyerror!void {
@@ -77,7 +78,7 @@ fn fillSymMap(smap: []bool, path: []const u8) anyerror!void {
         for (line) |c| {
             if (isSymbol(c)) {
                 smap[hashPair(p)] = true;
-                //              std.debug.print("({d},{d}) {c}\n", .{ p.x, p.y, c });
+                //std.debug.print("({d},{d}) {c}\n", .{ p.x, p.y, c });
             }
             p.x += 1;
         }
@@ -118,9 +119,9 @@ fn isPartNumber(p: Point, len: usize, smap: []bool) bool {
 // Solve day 3 Part 1.
 // BOUNDS -> X,Y <= 140. N <= 999. TOTAL < 2^32.
 fn partNumberSum(path: []const u8) anyerror!u32 {
-    //    std.debug.print("DEBUG\n", .{});
+    std.debug.print("DEBUG\n", .{});
 
-    var sym_map: [19744]bool = undefined;
+    var sym_map: [19880]bool = undefined;
     @memset(&sym_map, false);
 
     try fillSymMap(&sym_map, path);
@@ -177,12 +178,13 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
                 i -= 1;
             }
 
-            if (isPartNumber(.{ .x = i, .y = p.y }, num_len, &sym_map)) {
-                // std.debug.print("NUM: {d}\n", .{num});
+            if (isPartNumber(.{ .x = p.x, .y = p.y }, num_len, &sym_map)) {
+                std.debug.print("NUM: {d}, LEN: {d}, px: {d}, py: {d}\n", .{ num, num_len, p.x, p.y });
                 total += num;
             }
 
             i += num_len;
+            p.x = i;
 
             if (i >= line.len) break;
         }
@@ -202,5 +204,5 @@ test powOfTen {
 }
 
 test partNumberSum {
-    try std.testing.expectEqual(try partNumberSum("data/calibration.dat"), 4419); // 4361 + 58 + 5
+    try std.testing.expectEqual(try partNumberSum("data/calibration.dat"), 0); // 4361 + 58 + 5
 }
