@@ -6,12 +6,18 @@ const Point = struct {
 };
 
 // P1 ATTEMPTS:
-// 536202 Final
+// 536202 FINAL
 // 534871 LOW
 // 536298 HIGH
 // 556474 VHIGH
+//
+// P2 ATTEMPTS:
+// 78272573 FINAL
+// 3006409730 HIGH
+// 13207030 LOW
 pub fn main() anyerror!void {
     std.debug.print("Part Number Sum: {d}\n", .{try partNumberSum("data/input.dat")});
+    std.debug.print("Gear Ratio Sum: {d}\n", .{try gearRatioSum("data/input.dat")});
 }
 
 fn powOfTen(p: usize) u32 {
@@ -198,26 +204,147 @@ fn partNumberSum(path: []const u8) anyerror!u32 {
     return total;
 }
 
+// This is kind of insane, but it works?
 fn gearRatio(prev: []u8, curr: []u8, next: []u8, width: usize) u32 {
-    _ = next;
-    _ = prev;
-    //var num: u32 = 0;
-    //_ = num;
-    //var num_len: usize = 0;
-    //_ = num_len;
-    //var num_count: u8 = 0;
-    //_ = num_count;
-    var i: usize = 0;
+    var ratio_count: u32 = 0;
 
-    while (i < width and curr[i] != '*') {
+    var nums: [6]u32 = undefined;
+    var num_count: u8 = 0;
+    var num_idx: usize = 0;
+
+    var i: usize = 0;
+    var j: usize = 0;
+    var pow: usize = 0;
+
+    while (true) {
+        num_idx = 0;
+        num_count = 0;
+        @memset(&nums, 0);
+
+        // Find gear
+        while (i < width and curr[i] != '*') {
+            i += 1;
+        }
+
+        // Gear not found
+        if (i == width) {
+            break;
+        }
+
+        // Count numbers around gear
+        if (isDigit(prev[i - 1]) and !isDigit(prev[i]) and isDigit(prev[i + 1])) {
+            num_count += 2;
+
+            j = i - 1;
+            pow = 0;
+            while (isDigit(prev[j])) {
+                nums[num_idx] += charToDigit(prev[j]) * powOfTen(pow);
+                pow += 1;
+                j -= 1;
+            }
+            num_idx += 1;
+
+            j = i + 1;
+            pow = 0;
+            while (isDigit(prev[j + 1]))
+                j += 1;
+            while (isDigit(prev[j])) {
+                nums[num_idx] += charToDigit(prev[j]) * powOfTen(pow);
+                pow += 1;
+                j -= 1;
+            }
+            num_idx += 1;
+        } else if (isDigit(prev[i - 1]) or isDigit(prev[i]) or isDigit(prev[i + 1])) {
+            num_count += 1;
+
+            j = i - 1;
+            pow = 0;
+            while (!isDigit(prev[j]) or isDigit(prev[j + 1]))
+                j += 1;
+            while (isDigit(prev[j])) {
+                nums[num_idx] += charToDigit(prev[j]) * powOfTen(pow);
+                pow += 1;
+                j -= 1;
+            }
+            num_idx += 1;
+        }
+
+        num_count += @intFromBool(isDigit(curr[i - 1]));
+        num_count += @intFromBool(isDigit(curr[i + 1]));
+
+        if (isDigit(next[i - 1]) and !isDigit(next[i]) and isDigit(next[i + 1])) {
+            num_count += 2;
+
+            j = i - 1;
+            pow = 0;
+            while (isDigit(next[j])) {
+                nums[num_idx] += charToDigit(next[j]) * powOfTen(pow);
+                pow += 1;
+                j -= 1;
+            }
+            num_idx += 1;
+
+            j = i + 1;
+            pow = 0;
+            while (isDigit(next[j + 1]))
+                j += 1;
+            while (isDigit(next[j])) {
+                nums[num_idx] += charToDigit(next[j]) * powOfTen(pow);
+                pow += 1;
+                j -= 1;
+            }
+            num_idx += 1;
+        } else if (isDigit(next[i - 1]) or isDigit(next[i]) or isDigit(next[i + 1])) {
+            num_count += 1;
+
+            j = i - 1;
+            pow = 0;
+            while (!isDigit(next[j]) or isDigit(next[j + 1]))
+                j += 1;
+            while (isDigit(next[j])) {
+                nums[num_idx] += charToDigit(next[j]) * powOfTen(pow);
+                pow += 1;
+                j -= 1;
+            }
+            num_idx += 1;
+        }
+
+        // Gear iff count is 2
+        if (num_count != 2) {
+            i += 1;
+            continue;
+        }
+
+        if (isDigit(curr[i - 1])) {
+            j = i - 1;
+            pow = 0;
+            while (isDigit(curr[j])) {
+                nums[num_idx] += charToDigit(curr[j]) * powOfTen(pow);
+                pow += 1;
+                j -= 1;
+            }
+            num_idx += 1;
+        }
+
+        if (isDigit(curr[i + 1])) {
+            j = i + 1;
+            pow = 0;
+            while (isDigit(curr[j + 1]))
+                j += 1;
+            while (isDigit(curr[j])) {
+                nums[num_idx] += charToDigit(curr[j]) * powOfTen(pow);
+                pow += 1;
+                j -= 1;
+            }
+            num_idx += 1;
+        }
+
+        ratio_count += nums[0] * nums[1];
+
         i += 1;
     }
 
-    if (i == width) {
-        return 0;
-    }
-
-    return 0;
+    return ratio_count;
 }
 
 // Solve day 3 Part 2.
@@ -231,6 +358,8 @@ fn gearRatioSum(path: []const u8) anyerror!u32 {
     const in_stream = br.reader();
 
     var total: u32 = 0;
+    total += 1;
+    total -= 1;
 
     var prev: [1024]u8 = undefined;
     var curr: [1024]u8 = undefined;
@@ -240,11 +369,11 @@ fn gearRatioSum(path: []const u8) anyerror!u32 {
     @memset(&curr, '.');
     @memset(&next, '.');
 
-    _ = try in_stream.readUntilDelimiterOrEof(&curr, '\n');
+    _ = try in_stream.readUntilDelimiterOrEof(curr[1..], '\n');
 
     const width: usize = std.mem.sliceTo(&curr, '\n').len;
 
-    while (try in_stream.readUntilDelimiterOrEof(&next, '\n')) |nline| {
+    while (try in_stream.readUntilDelimiterOrEof(next[1..], '\n')) |nline| {
         _ = nline;
 
         //std.debug.print("{s}\n", .{std.mem.sliceTo(&curr, '\n')});
@@ -274,5 +403,5 @@ fn gearRatioSum(path: []const u8) anyerror!u32 {
 //}
 
 test gearRatioSum {
-    try std.testing.expectEqual(try gearRatioSum("data/calibration.dat"), 0);
+    try std.testing.expectEqual(try gearRatioSum("data/calibration.dat"), 16345);
 }
