@@ -41,3 +41,7 @@
 *.su
 *.idb
 *.pdb
+
+# Data files
+*.txt
+*.dat
