@@ -7,7 +7,7 @@
 
 #define BUFSIZE 1024
 #define HASHSETMAX 128
-#define MAXCARDS 6
+#define MAXCARDS 198
 
 #ifndef max
 #define max(a,b) \
@@ -25,6 +25,7 @@ void test_total_card_value(void);
 // PART 2
 int win_count(char *buf, bool *set);
 int total_cards(const char *path);
+void test_total_cards(void);
 
 //int main(int argc, char *argv[]) {
 int main(void) {
@@ -35,7 +36,8 @@ int main(void) {
     //printf("Card Value: %d\n", total_card_value(path));
     
     // PART 2
-    printf("Card Count: %d\n", total_cards("data/calibration.dat"));
+    test_total_cards();
+    printf("Card Count: %d\n", total_cards(path));
  
     return 0;
 }
@@ -229,18 +231,20 @@ int total_cards(const char *path) {
     char buffer[BUFSIZE] = {0};
     bool num_set[HASHSETMAX] = {false};
     int card_counts[MAXCARDS] = {0};
-    int card = 1;
+    int card = 0;
     int i = 0;
     int count = 0;
 
-    printf("\n");
+    //printf("\n");
     while (fgets(buffer, BUFSIZE, infile)) {
         parse_winning_nums(buffer, num_set);
         count = win_count(buffer, num_set);
-        printf("COUNT: %d\n", count);
+        //printf("COUNT: %d\n", count);
 
-        i = 0;
-        while (i < count && (card + i) < MAXCARDS) {
+        card_counts[card] += 1;
+
+        i = 1;
+        while (i <= count && (card + i) < MAXCARDS) {
             card_counts[card + i] += card_counts[card];
             ++i;
         }
@@ -256,4 +260,8 @@ int total_cards(const char *path) {
 
     fclose(infile);
     return total;
+}
+
+void test_total_cards(void) {
+    assert(total_cards("data/calibration.dat") == 30);
 }
